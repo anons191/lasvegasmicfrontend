@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { LoadScript } from '@react-google-maps/api';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import EventList from './components/Eventlist';
@@ -28,11 +29,12 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <div className="app-container">
-        <Navbar />
-        <main className="main-content">
-          <Switch>
+    <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+      <Router>
+        <div className="app-container">
+          <Navbar />
+          <main className="main-content">
+            <Switch>
             <Route exact path="/" component={EventList} />
             <Route exact path="/login" component={Login} />
             <Route exact path="/register" component={Register} />
@@ -43,10 +45,11 @@ function App() {
             <PrivateRoute exact path="/edit-event/:id" component={EditEvent} />
             <PrivateRoute exact path="/edit-profile" component={EditProfile} />
             <Route component={NotFound} />
-          </Switch>
-        </main>
-      </div>
-    </Router>
+            </Switch>
+          </main>
+        </div>
+      </Router>
+    </LoadScript>
   );
 }
 

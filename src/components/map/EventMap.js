@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { GoogleMap, LoadScript, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
@@ -85,8 +85,7 @@ const EventMap = () => {
       <h2>Nearby Open Mics</h2>
       {error && <div className="alert alert-danger">{error}</div>}
       
-      <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY} loadingElement={<div>Loading...</div>}>
-        <GoogleMap
+      <GoogleMap
           mapContainerStyle={containerStyle}
           center={currentPosition}
           zoom={12}
@@ -137,7 +136,6 @@ const EventMap = () => {
             </InfoWindow>
           )}
         </GoogleMap>
-      </LoadScript>
 
       {/* Event list below map */}
       <div className="nearby-events-list">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api';
+import { GoogleMap, Marker } from '@react-google-maps/api';
 
 const containerStyle = {
   width: '100%',
@@ -115,8 +115,7 @@ const EventDetailsForm = ({
         <label>Event Location *</label>
         <p className="help-text">Click on the map to set the exact location of your event</p>
         
-        <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
-          <GoogleMap
+        <GoogleMap
             mapContainerStyle={containerStyle}
             center={mapCenter}
             zoom={13}
@@ -126,7 +125,6 @@ const EventDetailsForm = ({
               <Marker position={markerPosition} />
             )}
           </GoogleMap>
-        </LoadScript>
       </div>
     </div>
   );
