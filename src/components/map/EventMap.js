@@ -9,6 +9,8 @@ const containerStyle = {
 };
 
 const EventMap = () => {
+  // Check if API key is loaded
+  console.log('Google Maps API Key:', process.env.REACT_APP_GOOGLE_MAPS_API_KEY ? 'API key exists' : 'API key missing');
   const [currentPosition, setCurrentPosition] = useState(null);
   const [events, setEvents] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -83,14 +85,14 @@ const EventMap = () => {
       <h2>Nearby Open Mics</h2>
       {error && <div className="alert alert-danger">{error}</div>}
       
-      <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY}>
+      <LoadScript googleMapsApiKey={process.env.REACT_APP_GOOGLE_MAPS_API_KEY} loadingElement={<div>Loading...</div>}>
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={currentPosition}
           zoom={12}
         >
           {/* Current location marker */}
-          {currentPosition && (
+          {currentPosition && typeof window.google !== 'undefined' && window.google.maps && (
             <Marker
               position={currentPosition}
               icon={{
