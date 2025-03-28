@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { isAuthenticated, getCurrentUser, logout } from '../utils/auth';
+import { isAuthenticated, getCurrentUser, logout, isVerified } from '../utils/auth';
 
 const Navbar = () => {
   const [user, setUser] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [verified, setVerified] = useState(isVerified());
   const location = useLocation();
 
   useEffect(() => {
@@ -13,14 +14,14 @@ const Navbar = () => {
         try {
           const userData = await getCurrentUser();
           setUser(userData);
+          setVerified(isVerified()); // 🧠 <-- Refresh verified state too
         } catch (error) {
           console.error('Error fetching user data:', error);
         }
       }
     };
-
     fetchUser();
-  }, [location.pathname]); // Refresh when route changes
+  }, [location.pathname]);
 
   const handleLogout = () => {
     logout();
@@ -32,7 +33,19 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
+    <>
+      {isAuthenticated() && !verified && (
+        <div className="alert alert-warning text-center mb-0" style={{ borderRadius: 0 }}>
+          ⚠️ Your account is not verified. Please check your email to activate full access.
+          <button 
+            className="btn btn-sm btn-outline-dark ms-3"
+            onClick={() => window.location.href = '/verify-warning'}
+          >
+            Learn More
+          </button>
+        </div>
+      )}
+      <nav className="navbar navbar-expand-lg navbar-dark bg-primary">
       <div className="container">
         <Link className="navbar-brand" to="/">
           Open Mic App
@@ -102,6 +115,7 @@ const Navbar = () => {
         </div>
       </div>
     </nav>
+    </>
   );
 };
 

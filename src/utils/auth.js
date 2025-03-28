@@ -9,9 +9,29 @@ export const setAuthToken = token => {
   }
 };
 
+// Login user - store token and user data
+export function loginUser(token, user) {
+  localStorage.setItem('token', token);
+  localStorage.setItem('user', JSON.stringify(user));
+}
+
+// Store user verification status
+export const setUserVerification = isVerified => {
+  if (isVerified) {
+    localStorage.setItem('isVerified', 'true');
+  } else {
+    localStorage.setItem('isVerified', 'false');
+  }
+};
+
 // Check if user is authenticated
 export const isAuthenticated = () => {
   return localStorage.getItem('token') !== null;
+};
+
+// Check if user is verified
+export const isVerified = () => {
+  return localStorage.getItem('isVerified') === 'true';
 };
 
 // Get current user data
@@ -32,6 +52,7 @@ export const getCurrentUser = async () => {
 // Logout user
 export const logout = () => {
   localStorage.removeItem('token');
+  localStorage.removeItem('isVerified');
   setAuthToken(null);
   window.location.href = '/login';
 };

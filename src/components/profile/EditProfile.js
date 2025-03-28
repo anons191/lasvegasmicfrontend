@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { getCurrentUser } from '../../utils/auth';
 
 const EditProfile = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -67,7 +67,7 @@ const EditProfile = () => {
       });
       
       // Redirect to profile page
-      history.push('/profile');
+      navigate('/profile');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update profile');
       setSubmitting(false);
@@ -127,7 +127,7 @@ const EditProfile = () => {
           <button
             type="button"
             className="btn btn-secondary"
-            onClick={() => history.push('/profile')}
+            onClick={() => navigate('/profile')}
           >
             Cancel
           </button>

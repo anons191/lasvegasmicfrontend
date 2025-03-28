@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { getCurrentUser } from '../../utils/auth';
 
@@ -11,7 +11,7 @@ import ImageUploadForm from './form/ImageUploadForm';
 
 const EditEvent = () => {
   const { id } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -55,7 +55,7 @@ const EditEvent = () => {
         // Check if user is authenticated and is a host
         const userData = await getCurrentUser();
         if (userData.userType !== 'host') {
-          history.push('/');
+          navigate('/');
           return;
         }
         setUser(userData);
@@ -66,7 +66,7 @@ const EditEvent = () => {
         
         // Check if user is the host of this event
         if (eventData.host._id !== userData._id) {
-          history.push('/');
+          navigate('/');
           return;
         }
         
@@ -140,7 +140,7 @@ const EditEvent = () => {
     };
     
     fetchUserAndEvent();
-  }, [id, history]);
+  }, [id, navigate]);
   
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -252,7 +252,7 @@ const EditEvent = () => {
       });
       
       // Redirect to the event page
-      history.push(`/event/${id}`);
+      navigate(`/event/${id}`);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to update event');
       setSubmitting(false);
@@ -304,7 +304,7 @@ const EditEvent = () => {
           <button
             type="button"
             className="btn btn-secondary"
-            onClick={() => history.push(`/event/${id}`)}
+            onClick={() => navigate(`/event/${id}`)}
           >
             Cancel
           </button>

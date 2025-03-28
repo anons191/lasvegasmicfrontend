@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { LoadScript } from '@react-google-maps/api';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import EventList from './components/Eventlist';
 import Profile from './components/profile';
@@ -12,6 +12,8 @@ import CreateEvent from './components/events/CreateEvent';
 import EditEvent from './components/events/EditEvent';
 import EditProfile from './components/profile/EditProfile';
 import NotFound from './components/layout/NotFound';
+import VerifyEmail from './pages/VerifyEmail';
+import VerifyWarning from './pages/VerifyWarning';
 import PrivateRoute from './components/routing/PrivateRoute';
 import { setAuthToken } from './utils/auth';
 import axios from 'axios';
@@ -34,18 +36,20 @@ function App() {
         <div className="app-container">
           <Navbar />
           <main className="main-content">
-            <Switch>
-            <Route exact path="/" component={EventList} />
-            <Route exact path="/login" component={Login} />
-            <Route exact path="/register" component={Register} />
-            <Route exact path="/event/:id" component={EventDetails} />
-            <Route exact path="/map" component={EventMap} />
-            <PrivateRoute exact path="/profile" component={Profile} />
-            <PrivateRoute exact path="/create-event" component={CreateEvent} />
-            <PrivateRoute exact path="/edit-event/:id" component={EditEvent} />
-            <PrivateRoute exact path="/edit-profile" component={EditProfile} />
-            <Route component={NotFound} />
-            </Switch>
+            <Routes>
+            <Route path="/" element={<EventList />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/verify-warning" element={<VerifyWarning />} />
+            <Route path="/event/:id" element={<EventDetails />} />
+            <Route path="/map" element={<EventMap />} />
+            <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
+            <Route path="/create-event" element={<PrivateRoute><CreateEvent /></PrivateRoute>} />
+            <Route path="/edit-event/:id" element={<PrivateRoute><EditEvent /></PrivateRoute>} />
+            <Route path="/edit-profile" element={<PrivateRoute><EditProfile /></PrivateRoute>} />
+            <Route path="*" element={<NotFound />} />
+            </Routes>
           </main>
         </div>
       </Router>

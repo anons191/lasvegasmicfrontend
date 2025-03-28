@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { setAuthToken } from '../../utils/auth';
+import { setAuthToken, setUserVerification } from '../../utils/auth';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -13,7 +13,7 @@ const Register = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { name, email, password, password2, userType } = formData;
 
@@ -42,14 +42,20 @@ const Register = () => {
       
       const res = await axios.post('/api/users/register', newUser);
       
+      // Show verification alert
+      alert("✅ Registered! Check your email to verify your account.");
+      
       // Set token to local storage
       localStorage.setItem('token', res.data.token);
+      
+      // Store verification status (false for new registrations)
+      setUserVerification(false);
       
       // Set auth token for axios requests
       setAuthToken(res.data.token);
       
       // Redirect to events page
-      history.push('/');
+      navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed. Please try again.');
       setLoading(false);

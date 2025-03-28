@@ -1,22 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { getCurrentUser } from '../../utils/auth';
 
-// Import form components
 import EventDetailsForm from './form/EventDetailsForm';
 import DateTimeForm from './form/DateTimeForm';
 import TimeSlotsForm from './form/TimeSlotsForm';
 import ImageUploadForm from './form/ImageUploadForm';
 
 const CreateEvent = () => {
-  const history = useHistory();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [user, setUser] = useState(null);
-  
-  // Form state
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -33,137 +31,92 @@ const CreateEvent = () => {
     timeSlots: [],
     image: null
   });
-  
-  // Map state
+
   const [markerPosition, setMarkerPosition] = useState(null);
-  const [mapCenter, setMapCenter] = useState({
-    lat: 36.1699, // Default to Las Vegas
-    lng: -115.1398
-  });
-  
-  // Time slot management
-  const [newSlot, setNewSlot] = useState({
-    startTime: '',
-    endTime: ''
-  });
-  
+  const [mapCenter, setMapCenter] = useState({ lat: 36.1699, lng: -115.1398 });
+  const [newSlot, setNewSlot] = useState({ startTime: '', endTime: '' });
+
   useEffect(() => {
-    const checkUserAndLoadLocation = async () => {
+    const init = async () => {
       try {
-        // Check if user is authenticated and is a host
         const userData = await getCurrentUser();
-        if (userData.userType !== 'host') {
-          history.push('/');
-          return;
-        }
+        if (userData.userType !== 'host') return navigate('/');
         setUser(userData);
-        
-        // Try to get user's current location for the map
+
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const pos = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-              };
-              setMapCenter(pos);
-              setLoading(false);
-            },
-            () => {
-              // Error getting location, use default
-              setLoading(false);
-            }
+            ({ coords }) => setMapCenter({ lat: coords.latitude, lng: coords.longitude }),
+            () => {}
           );
-        } else {
-          // Geolocation not supported
-          setLoading(false);
         }
       } catch (err) {
         setError('You must be logged in as a host to create events');
+      } finally {
         setLoading(false);
       }
     };
-    
-    checkUserAndLoadLocation();
-  }, [history]);
-  
-  const handleInputChange = (e) => {
+    init();
+  }, [navigate]);
+
+  const handleInputChange = e => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
-  
-  const handleAddressChange = (e) => {
+
+  const handleAddressChange = e => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      address: {
-        ...formData.address,
-        [name]: value
-      }
-    });
+    setFormData(prev => ({
+      ...prev,
+      address: { ...prev.address, [name]: value }
+    }));
   };
-  
-  const handleImageChange = (e) => {
-    setFormData({ ...formData, image: e.target.files[0] });
-  };
-  
-  const handleMapClick = (e) => {
-    const lat = e.latLng.lat();
-    const lng = e.latLng.lng();
-    setMarkerPosition({ lat, lng });
-  };
-  
-  const handleNewSlotChange = (e) => {
+
+  const handleImageChange = e => setFormData(prev => ({ ...prev, image: e.target.files[0] }));
+  const handleMapClick = e => setMarkerPosition({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+
+  const handleNewSlotChange = e => {
     const { name, value } = e.target;
-    setNewSlot({ ...newSlot, [name]: value });
+    setNewSlot(prev => ({ ...prev, [name]: value }));
   };
-  
+
   const addTimeSlot = () => {
-    // Validate that start time is before end time
     if (newSlot.startTime >= newSlot.endTime) {
       setError('Start time must be before end time');
       return;
     }
-    
-    // Add new slot to the list
-    setFormData({
-      ...formData,
-      timeSlots: [...formData.timeSlots, { ...newSlot }]
-    });
-    
-    // Reset new slot form
-    setNewSlot({
-      startTime: '',
-      endTime: ''
-    });
+    setFormData(prev => ({
+      ...prev,
+      timeSlots: [...prev.timeSlots, { ...newSlot }]
+    }));
+    setNewSlot({ startTime: '', endTime: '' });
   };
-  
-  const removeTimeSlot = (index) => {
-    const updatedSlots = [...formData.timeSlots];
-    updatedSlots.splice(index, 1);
-    setFormData({ ...formData, timeSlots: updatedSlots });
+
+  const removeTimeSlot = index => {
+    const updated = [...formData.timeSlots];
+    updated.splice(index, 1);
+    setFormData(prev => ({ ...prev, timeSlots: updated }));
   };
-  
-  const handleSubmit = async (e) => {
+
+  const handleSubmit = async e => {
     e.preventDefault();
     setSubmitting(true);
     setError('');
-    
-    // Validate form
-    if (!formData.name || !formData.venue || !formData.date || !formData.startTime || !formData.endTime) {
-      setError('Please fill in all required fields');
-      setSubmitting(false);
-      return;
+
+    const required = ['name', 'venue', 'date', 'startTime', 'endTime'];
+    for (let key of required) {
+      if (!formData[key]) {
+        setError('Please fill in all required fields');
+        setSubmitting(false);
+        return;
+      }
     }
-    
-    // Validate location marker
+
     if (!markerPosition) {
       setError('Please select the event location on the map');
       setSubmitting(false);
       return;
     }
-    
-    // Prepare form data for submission
+
     const eventData = new FormData();
     eventData.append('name', formData.name);
     eventData.append('description', formData.description);
@@ -174,47 +127,36 @@ const CreateEvent = () => {
     eventData.append('endTime', `${formData.date}T${formData.endTime}`);
     eventData.append('longitude', markerPosition.lng);
     eventData.append('latitude', markerPosition.lat);
-    
-    // Add time slots
+
     if (formData.timeSlots.length > 0) {
-      const timeSlotData = formData.timeSlots.map(slot => ({
+      const slots = formData.timeSlots.map(slot => ({
         startTime: `${formData.date}T${slot.startTime}`,
         endTime: `${formData.date}T${slot.endTime}`
       }));
-      eventData.append('timeSlots', JSON.stringify(timeSlotData));
+      eventData.append('timeSlots', JSON.stringify(slots));
     }
-    
-    // Add image if selected
-    if (formData.image) {
-      eventData.append('image', formData.image);
-    }
-    
+
+    if (formData.image) eventData.append('image', formData.image);
+
     try {
       const res = await axios.post('/api/events', eventData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+        headers: { 'Content-Type': 'multipart/form-data' }
       });
-      
-      // Redirect to the event page
-      history.push(`/event/${res.data._id}`);
+      navigate(`/event/${res.data._id}`);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to create event');
       setSubmitting(false);
     }
   };
-  
-  if (loading) {
-    return <div className="loading">Loading...</div>;
-  }
-  
+
+  if (loading) return <div className="loading">Loading...</div>;
+
   return (
     <div className="create-event-container">
       <h2>Create New Open Mic Event</h2>
       {error && <div className="alert alert-danger">{error}</div>}
-      
+
       <form onSubmit={handleSubmit}>
-        {/* Event Details Section */}
         <EventDetailsForm 
           formData={formData}
           handleInputChange={handleInputChange}
@@ -223,14 +165,12 @@ const CreateEvent = () => {
           mapCenter={mapCenter}
           handleMapClick={handleMapClick}
         />
-        
-        {/* Date & Time Section */}
+
         <DateTimeForm 
           formData={formData}
           handleInputChange={handleInputChange}
         />
-        
-        {/* Time Slots Section */}
+
         <TimeSlotsForm 
           formData={formData}
           newSlot={newSlot}
@@ -239,25 +179,14 @@ const CreateEvent = () => {
           removeTimeSlot={removeTimeSlot}
           isEdit={false}
         />
-        
-        {/* Image Upload Section */}
-        <ImageUploadForm 
-          handleImageChange={handleImageChange}
-        />
-        
+
+        <ImageUploadForm handleImageChange={handleImageChange} />
+
         <div className="form-actions">
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => history.goBack()}
-          >
+          <button type="button" className="btn btn-secondary" onClick={() => navigate(-1)}>
             Cancel
           </button>
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={submitting}
-          >
+          <button type="submit" className="btn btn-primary" disabled={submitting}>
             {submitting ? 'Creating Event...' : 'Create Event'}
           </button>
         </div>

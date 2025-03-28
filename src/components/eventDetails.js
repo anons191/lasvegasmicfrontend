@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useHistory, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { getCurrentUser, isAuthenticated } from '../utils/auth';
 
 const EventDetails = () => {
   const { id } = useParams();
-  const history = useHistory();
+  const navigate = useNavigate();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -52,7 +52,7 @@ const EventDetails = () => {
 
   const handleAttend = async () => {
     if (!isAuthenticated()) {
-      history.push('/login');
+      navigate('/login');
       return;
     }
     
@@ -112,7 +112,7 @@ const EventDetails = () => {
     if (window.confirm('Are you sure you want to cancel this event? This action cannot be undone.')) {
       try {
         await axios.put(`/api/events/${id}`, { status: 'cancelled' });
-        history.push('/profile');
+        navigate('/profile');
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to cancel event');
       }

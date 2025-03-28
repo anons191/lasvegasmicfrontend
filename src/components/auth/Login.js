@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { setAuthToken } from '../../utils/auth';
+import { setAuthToken, setUserVerification, loginUser } from '../../utils/auth';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -10,7 +10,7 @@ const Login = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { email, password } = formData;
 
@@ -26,14 +26,17 @@ const Login = () => {
     try {
       const res = await axios.post('/api/users/login', formData);
       
-      // Set token to local storage
-      localStorage.setItem('token', res.data.token);
+      // Store token and user data
+      loginUser(res.data.token, res.data.user);
+      
+      // Store verification status
+      setUserVerification(res.data.user.isVerified);
       
       // Set auth token for axios requests
       setAuthToken(res.data.token);
       
       // Redirect to events page
-      history.push('/');
+      navigate('/');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed. Please try again.');
       setLoading(false);
