@@ -19,7 +19,7 @@ import { setAuthToken } from './utils/auth';
 import axios from 'axios';
 
 // Set base URL for API requests
-axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://69.62.68.62:5001/api';
 
 function App() {
   useEffect(() => {

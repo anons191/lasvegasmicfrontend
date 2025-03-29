@@ -132,7 +132,7 @@ const EventList = () => {
             <div key={event._id} className="card event-card">
               {event.image ? (
                 <img 
-                  src={`${process.env.REACT_APP_API_URL || ''}/api/image/${event.image}`} 
+                  src={`${process.env.REACT_APP_API_URL}/image/${event.image}`} 
                   className="card-img-top" 
                   alt={event.name} 
                 />
