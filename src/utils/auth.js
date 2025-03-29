@@ -1,4 +1,5 @@
 import axios from 'axios';
+import api from './api';  // Import the api instance
 
 // Set auth token as default header for all axios requests
 export const setAuthToken = token => {
@@ -37,7 +38,7 @@ export const isVerified = () => {
 // Get current user data
 export const getCurrentUser = async () => {
   try {
-    const res = await axios.get('/api/users/me');
+    const res = await api.get('/users/me');
     return res.data;
   } catch (err) {
     // If token is invalid, remove it

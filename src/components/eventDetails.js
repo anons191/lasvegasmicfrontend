@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import api from '../utils/api';  // Import the api instance
 import { getCurrentUser, isAuthenticated } from '../utils/auth';
 
 const EventDetails = () => {
@@ -19,7 +20,7 @@ const EventDetails = () => {
     const fetchEventAndUser = async () => {
       try {
         // Fetch event details
-        const eventRes = await axios.get(`/api/events/${id}`);
+        const eventRes = await api.get(`/events/${id}`);
         setEvent(eventRes.data);
         
         // If user is authenticated, fetch user details
@@ -57,10 +58,10 @@ const EventDetails = () => {
     }
     
     try {
-      await axios.post(`/api/users/events/${id}/attend`, { attendingFor });
+      await api.post(`/users/events/${id}/attend`, { attendingFor });
       setIsAttending(true);
       // Refresh event data to update attendee count
-      const eventRes = await axios.get(`/api/events/${id}`);
+      const eventRes = await api.get(`/events/${id}`);
       setEvent(eventRes.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to RSVP for this event');
@@ -69,10 +70,10 @@ const EventDetails = () => {
 
   const handleCancelAttend = async () => {
     try {
-      await axios.delete(`/api/users/events/${id}/attend`);
+      await api.delete(`/users/events/${id}/attend`);
       setIsAttending(false);
       // Refresh event data to update attendee count
-      const eventRes = await axios.get(`/api/events/${id}`);
+      const eventRes = await api.get(`/events/${id}`);
       setEvent(eventRes.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to cancel RSVP');
@@ -86,10 +87,10 @@ const EventDetails = () => {
     }
     
     try {
-      await axios.post(`/api/users/events/${id}/slots/${selectedSlot}`);
+      await api.post(`/users/events/${id}/slots/${selectedSlot}`);
       setIsPerforming(true);
       // Refresh event data to update slot status
-      const eventRes = await axios.get(`/api/events/${id}`);
+      const eventRes = await api.get(`/events/${id}`);
       setEvent(eventRes.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to book performance slot');
@@ -98,10 +99,10 @@ const EventDetails = () => {
 
   const handleCancelSlot = async (slotId) => {
     try {
-      await axios.delete(`/api/users/events/${id}/slots/${slotId}`);
+      await api.delete(`/users/events/${id}/slots/${slotId}`);
       setIsPerforming(false);
       // Refresh event data to update slot status
-      const eventRes = await axios.get(`/api/events/${id}`);
+      const eventRes = await api.get(`/events/${id}`);
       setEvent(eventRes.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to cancel performance slot');
@@ -111,7 +112,7 @@ const EventDetails = () => {
   const handleCancelEvent = async () => {
     if (window.confirm('Are you sure you want to cancel this event? This action cannot be undone.')) {
       try {
-        await axios.put(`/api/events/${id}`, { status: 'cancelled' });
+        await api.put(`/events/${id}`, { status: 'cancelled' });
         navigate('/profile');
       } catch (err) {
         setError(err.response?.data?.message || 'Failed to cancel event');

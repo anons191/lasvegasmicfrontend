@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import api from '../utils/api';  // Import the api instance
 import { getCurrentUser, logout } from '../utils/auth';
 
 const Profile = () => {
@@ -38,7 +39,7 @@ const Profile = () => {
 
   const handleCancelRSVP = async (eventId) => {
     try {
-      await axios.delete(`/api/users/events/${eventId}/attend`);
+      await api.delete(`/users/events/${eventId}/attend`);
       const updatedUser = await getCurrentUser();
       setUser(updatedUser);
     } catch (err) {
@@ -48,7 +49,7 @@ const Profile = () => {
 
   const handleCancelPerformance = async (eventId, slotId) => {
     try {
-      await axios.delete(`/api/users/events/${eventId}/slots/${slotId}`);
+      await api.delete(`/users/events/${eventId}/slots/${slotId}`);
       const updatedUser = await getCurrentUser();
       setUser(updatedUser);
     } catch (err) {
@@ -59,7 +60,7 @@ const Profile = () => {
   const handleCancelEvent = async (eventId) => {
     if (window.confirm('Are you sure you want to cancel this event?')) {
       try {
-        await axios.put(`/api/events/${eventId}`, { status: 'cancelled' });
+        await api.put(`/events/${eventId}`, { status: 'cancelled' });
         const updatedUser = await getCurrentUser();
         setUser(updatedUser);
       } catch (err) {
@@ -70,7 +71,7 @@ const Profile = () => {
 
   const handleUpdateNotificationPrefs = async (field, value) => {
     try {
-      await axios.put('/api/users/notification-preferences', { [field]: value });
+      await api.put('/users/notification-preferences', { [field]: value });
       const updatedUser = await getCurrentUser();
       setUser(updatedUser);
     } catch (err) {

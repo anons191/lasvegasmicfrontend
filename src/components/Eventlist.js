@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import api from '../utils/api';  // Import the api instance
 import { getCurrentUser } from '../utils/auth';
 
 const EventList = () => {
@@ -28,7 +29,7 @@ const EventList = () => {
 
   const fetchEvents = async (page, status) => {
     try {
-      const res = await axios.get(`/api/events?page=${page}&limit=10&status=${status}`);
+      const res = await api.get(`/events?page=${page}&limit=10&status=${status}`);
       setEvents(res.data.events);
       setTotalPages(res.data.totalPages);
       setLoading(false);
